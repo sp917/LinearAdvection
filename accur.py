@@ -75,6 +75,7 @@ for n in range(1,grad.size):
     grad[n] = (np.log(AVERR[n]) - np.log(AVERR[n-1]))/(np.log(DT[n]) - np.log(DT[n-1]))
 
 for n in range(0,DT.size):
-    print("%f  %.9f  %.9f" % (DT[n], AVERR[n], grad[n]))
+    print("""\hline
+				%f	& %.9f & %.9f \\\ """ % (DT[n], AVERR[n], grad[n]))
 
 plt.plot(np.log(DT),np.log(AVERR),'ro')
