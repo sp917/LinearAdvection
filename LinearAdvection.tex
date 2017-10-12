@@ -1,0 +1,128 @@
+\documentclass[10pt]{article}
+
+\input{Preamble}
+
+
+\begin{document}
+
+\title{Numerical Methods Assignment 1\\Stuart Patching}
+
+\section{The Linear Advection Equation}
+
+We aim to solve the equation:
+\eq{
+	u_{t} + au_{x} = 0
+	}
+with initial condition:
+\eq{
+	u(x,0) = f(x)
+	}
+It is straightforward to show that this has the exact solution:
+\eq{
+	u(x,t) = f(x - ct)
+}
+We shall, however, use this equation to examine and compare some different numerical methods.
+
+\section{Numerical Schemes}
+
+In order to solve the linear advection equation numerically, we must choose a scheme in which we replace derivatives by discrete iterations. For simplicity we restrict to the domain:
+	\eq{
+		(x,t) \in [0,1]\times[0,1]
+	}
+We use the following notation:
+\eq{
+	u(n\Delta x, m\Delta t) \approx u^{m}_{n}
+}
+
+\subsection{CNCS}
+
+From the numerical schemes for the advection equation given in \cite{MPE} on page 292 we see that that there are two methods with second order accuracy in both space and time, and one of these is CNCS which is given by:
+\eqlab{
+	u^{m+1}_{n} = u^{m}_{n} - \frac{c}{4}\lrb{u^{m+1}_{n+1} - u^{m+1}_{n-1} + u^{m}_{n+1} - u^{m}_{n-1}}  \qquad m = 0,...,M-1, \quad n=1,...,N-1
+}{CNCS}
+Where:
+\eq{
+	c = a\frac{\Delta t}{\Delta x}
+}
+We also need to impose the initial condition, which in this case is:
+\eq{
+	u^{0}_{n} = f(n\Delta x)
+}
+We also impose periodic boundary conditions so that $u^{m}_{-1} = u^{m}_{N}$. The effect of this is to make \eqref{eq:CNCS} valid for $n=0$ also. In the exact solution this amounts to extending $f$ periodically. \\
+
+We can now reformulate \eqref{eq:CNCS} as a matrix equation:
+\eq{
+	A u ^{m+1} = B u^{m}
+}
+where:
+\algn{
+	A_{nk} & = \delta_{nk} +  \tfrac{c}{4}(\delta_{(n+1)k} - \delta_{(n-1)k}) \\
+	B_{nk} & = \delta_{nk} -  \tfrac{c}{4}(\delta_{(n+1)k} - \delta_{(n-1)k}) 
+}
+So:
+\eq{
+	u^{m+1} = A^{-1}Bu^{m}
+}
+
+\subsection{BTBS}
+
+The BTBS scheme is reported in \cite{MPE} as having first-order accuracy in both time and space and like CNCS is an implicit method. It is given by:
+\eq{
+	u^{m+1}_{n} = u^{m}_{n} - c\lrb{u^{m+1}_{n} - u^{m+1}_{n-1}}
+}
+Using the same boundary and initial conditions as above, we re-write this as:
+\eq{
+	u^{m+1} = C^{-1}u^{m}
+}
+Where:
+\eq{
+	C_{nk}  =  \delta_{nk} + c(\delta_{nk} - \delta_{(n-1)k})
+}
+
+\subsection{CTCS}
+
+We consider also the second-order accurate explicit CTCS method:
+\eq{
+	u^{m+1}_{n} = u^{m-1}_{n} - c(u^{m}_{n+1} - u^{m}_{n-1})
+}
+This is a two-step method so we use FTCS for the first iteration:
+\eq{
+	u^{1}_{n} = u^{0}_{n} - \tfrac{c}{2}(u^{0}_{n+1} - u^{0}_{n-1})
+}
+Thus we have overall:
+\algn{
+	u^{1} & = Du^{0}\\
+	u^{m+1} & = u^{m-1} + Eu^{m} \qquad \text{for}\; m = 1,...,M-1
+}
+Where:
+\algn{
+	D_{nk} & = \delta_{nk} - \tfrac{c}{2}(\delta_{(n+1)k} - \delta_{(n-1)k}) \\
+	E_{nk} & = -c(\delta_{(n+1)k} - \delta_{(n-1)k})
+}
+
+\subsection{FTBS}
+
+Finally we consider the FTBS method, which is explicit and first order in both time and space. It is given by:
+\eq{
+	u^{m+1}_{k} = u^{m}_{n} - c(u^{m}_{n} - u^{m}_{n-1})
+}
+i.e.:
+\eq{
+	u^{m+1} = Fu^{m}
+}
+\eq{
+	F_{nk} = (1-c)\delta_{nk} + c\delta_{(n-1)k}
+}
+
+\subsection{Order of Accuracy}
+
+
+
+\subsection{Effect of initial conditions}
+
+
+\begin{thebibliography}{9}
+	\bibitem{MPE} D. Crisan et al. 2017. \i{Mathematics of Planet Earth: A Primer}
+\end{thebibliography}
+
+\end{document}
