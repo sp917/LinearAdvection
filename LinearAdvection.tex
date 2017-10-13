@@ -64,6 +64,9 @@ So:
 	u^{m+1} = A^{-1}Bu^{m}
 }
 
+
+
+\iffalse
 \subsection{BTBS}
 
 The BTBS scheme is reported in \cite{MPE} as having first-order accuracy in both time and space and like CNCS is an implicit method. It is given by:
@@ -100,6 +103,8 @@ Where:
 	E_{nk} & = -c(\delta_{(n+1)k} - \delta_{(n-1)k})
 }
 
+\fi
+
 \subsection{FTBS}
 
 Finally we consider the FTBS method, which is explicit and first order in both time and space. It is given by:
@@ -114,8 +119,34 @@ i.e.:
 	F_{nk} = (1-c)\delta_{nk} + c\delta_{(n-1)k}
 }
 
-\subsection{Order of Accuracy}
+\subsection{Results}
 
+Here we print the $t=1$ graph for the two methods described above for $a = 0.7$, $\Delta x = \Delta t = 0.001$ and with initial condition: 
+
+\eq{f(x) = \exp\lrb{-100(x-0.1)^{2}}}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{solution}
+\caption{Write caption}
+\end{figure}
+
+We can see from this that CNCS is much closer to the exact solution than FTBS. This is what we would expect, as it is a higher-order method. However, consider different boundary conditions, such as:
+\eq{
+	f(x) = H((x-0.1)(0.2-x))
+}
+where $H(x) = 1$ if $x>0$ and zero otherwise. The results of this are then:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{solutiondiscont}
+\caption{Write caption}
+\end{figure}
+
+We see that in the case in which the initial condition contains discontinuities, the FTBS method produces a solution closer to the exact solution. 
+
+\subsection{Order of Accuracy}
+\subsubsection{CNCS}
 \begin{table}[H]
 	\centering
 		\begin{tabular}{|c|c|c|}
@@ -152,9 +183,39 @@ i.e.:
 		\caption{put something sensible here}
 \end{table}
 
+Graphically we find the following:
 
-\subsection{Effect of initial conditions}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{logerror}
+\caption{Write caption}
+\end{figure}
 
+\subsubsection{FTBS}
+
+
+
+\subsection{Changing the Courant Number}
+
+Now let us examine what happens when we use, for example $c = 1.1$, with the continuous initial condition used previously.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{c11}
+\caption{Write caption}
+\end{figure}
+
+So here it seems that the FTBS method is unstable for this value of $c$.
+
+And for negative values such as $c = -0.1$: 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{cneg01}
+\caption{Write caption}
+\end{figure}
+
+This is consistent with \cite{MPE}, which states that the FTBS method is stable only for $c\in[0,1]$, whereas CNCS is stable for all $c\in \R$.
 
 \begin{thebibliography}{9}
 	\bibitem{MPE} D. Crisan et al. 2017. \i{Mathematics of Planet Earth: A Primer}

@@ -15,7 +15,7 @@ Created on Wed Oct  4 15:19:42 2017
 import numpy as np
 import matplotlib.pyplot as plt
 
-a = 0.7
+a = -0.1
 
 # Set ranges
 
@@ -40,13 +40,13 @@ M = int(T/dt) + 1
 
 def f(b):
     b = b%X
-    return    np.exp(-(b-0.1)**2/0.001) #1 - (b<0.1) - (b>0.2) 
+    return     np.exp(-(b-0.1)**2/0.001) #1 - (b<0.1) - (b>0.2)
 
 
 CNCS = np.zeros(shape = (M,N))
+#BTBS = np.zeros(shape=(M,N))
+#CTCS = np.zeros(shape=(M,N))
 FTBS = np.zeros(shape=(M,N))
-BTBS = np.zeros(shape=(M,N))
-CTCS = np.zeros(shape=(M,N))
 
 x = np.zeros(N)
 t = np.zeros(M)
@@ -60,8 +60,8 @@ for m in range(0,M):
 #initial condition:
 
 CNCS[0] = f(x)
-BTBS[0] = f(x)
-CTCS[0] = f(x)
+#BTBS[0] = f(x)
+#CTCS[0] = f(x)
 FTBS[0] = f(x)
 
 
@@ -69,9 +69,9 @@ FTBS[0] = f(x)
 
 A = np.zeros(shape = (N,N)) #CNCS
 B = np.zeros(shape = (N,N)) #CNCS
-C = np.zeros(shape = (N,N)) #BTBS
-D = np.zeros(shape = (N,N)) #FTCS
-E = np.zeros(shape = (N,N)) #CTCS
+#C = np.zeros(shape = (N,N)) #BTBS
+#D = np.zeros(shape = (N,N)) #FTCS
+#E = np.zeros(shape = (N,N)) #CTCS
 F = np.zeros(shape = (N,N)) #FTBS
 
 
@@ -79,9 +79,9 @@ for n in range(0,N):
     for k in range(0,N):        
         A[n][k] = (n==k) + (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
         B[n][k] = (n==k) - (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
-        C[n][k] = (n==k)*(1+c) - c*( n == (k+1)%N)
-        D[n][k] = (n==k%N) - 0.5*c*(n==((k-1)%N)) + 0.5*c*(n==((k+1)%N))
-        E[n][k] = c*(n==((k-1)%N)) - c*(n==((k+1)%N))
+       #C[n][k] = (n==k)*(1+c) - c*( n == (k+1)%N)
+       #D[n][k] = (n==k%N) - 0.5*c*(n==((k-1)%N)) + 0.5*c*(n==((k+1)%N))
+       #E[n][k] = c*(n==((k-1)%N)) - c*(n==((k+1)%N))
         F[n][k] = (1-c)*((n==k%N)) + c*(n==((k+1)%N))
 
 
@@ -94,19 +94,19 @@ for m in range(1,M):
     
 #BTBS:
     
-invC = np.linalg.inv(C)
+#invC = np.linalg.inv(C)
 
-for m in range(1,M):
-    BTBS[m] = np.dot(invC,BTBS[m-1])
+#for m in range(1,M):
+#    BTBS[m] = np.dot(invC,BTBS[m-1])
 
 #CTCS:
 #Since CTCS is a two-step method we need a one-step method for the first iteration 
 #We use FTCS
 
-CTCS[1] = np.dot(D,CTCS[0])
+#CTCS[1] = np.dot(D,CTCS[0])
 
-for m in range(2,M):
-    CTCS[m] = CTCS[m-2] - np.dot(E,CTCS[m-1])
+#for m in range(2,M):
+ #   CTCS[m] = CTCS[m-2] - np.dot(E,CTCS[m-1])
 
 #FTBS:
 
@@ -136,17 +136,17 @@ m = int((M-1)*tt/T)
 
 plt.axis([0,X,-1.3,1.4])
 plt.plot(x,CNCS[m], label = 'CNCS')
-plt.plot(x,BTBS[m], label = 'BTBS')
-plt.plot(x,CTCS[m], label = 'CTCS')
+#plt.plot(x,BTBS[m], label = 'BTBS')
+#plt.plot(x,CTCS[m], label = 'CTCS')
 plt.plot(x,FTBS[m], label = 'FTBS')
 plt.plot(x,exact[m], label = 'Exact Solution')
 plt.legend()
-plt.title('t = %f' % t[m])
+plt.title('t = %.3f' % t[m])
 plt.xlabel('x')
 plt.ylabel('u')
 plt.show()
 
 print("CNCS: %f" % averr(CNCS))
-print("BTBS: %f" % averr(BTBS))
-print("CTCS: %f" % averr(CTCS))
+#print("BTBS: %f" % averr(BTBS))
+#print("CTCS: %f" % averr(CTCS))
 print("FTBS: %f" % averr(FTBS))

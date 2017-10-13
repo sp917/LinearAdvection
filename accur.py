@@ -76,6 +76,8 @@ for n in range(1,grad.size):
 
 for n in range(0,DT.size):
     print("""\hline
-				%f	& %.9f & %.9f \\\ """ % (DT[n], AVERR[n], grad[n]))
-
+          %f & %.9f & %.9f \\\ """ % (DT[n], AVERR[n], grad[n]))
+plt.rc('text', usetex = True)
+plt.xlabel(r'$\log(\Delta t)$')
+plt.ylabel(r'$\log(\text{Error})$')
 plt.plot(np.log(DT),np.log(AVERR),'ro')
