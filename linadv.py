@@ -15,7 +15,7 @@ Created on Wed Oct  4 15:19:42 2017
 import numpy as np
 import matplotlib.pyplot as plt
 
-a = -0.1
+a = 0.7
 
 # Set ranges
 
