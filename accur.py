@@ -86,7 +86,6 @@ def main(X,T,a,dx,dt):
     AVERR = AVERR + [averr]
     
 
-
     DT = np.array(DT)
     grad = np.zeros(shape = DT.size)
     grad[0] = 0

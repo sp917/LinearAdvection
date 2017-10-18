@@ -27,9 +27,9 @@ class data: #This class provides the necessary data for solving the equation
         self.M = int(T/dt) + 1
         self.x = v(dx,self.N)
         self.t = v(dt,self.M)
-    def f(self,x):
+    def f(self,x): #Initial condition
         x = x%(self.X)
-        return np.exp(-(x-0.1)**2/0.001)
+        return np.exp(-(x-0.1)**2/0.001)# 1 - (x<0.1) - (x>0.2) #
     
 
 def exactsolution(y):
@@ -42,24 +42,30 @@ def exactsolution(y):
     return exact
 
 
-def C(n,N,c): #C will be the matrix such that u^{n+1} = Cu^{n}
-    if n==1:
+def C(i,N,c): #C will be the matrix such that u^{n+1} = Cu^{n}
+    
+    if i==1: #CNCS
         A = np.zeros(shape=(N,N))
         B = np.zeros(shape = (N,N)) 
-        
         for n in range(0,N):
             for k in range(0,N):        
                 A[n][k] = (n==k) + (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
                 B[n][k] = (n==k) - (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
-                
         return np.dot(np.linalg.inv(A),B)
-
+    
+    if i==2: #FTBS
+        A = np.zeros(shape = (N,N))
+        for n in range(0,N):
+                for k in range(0,N):
+                    A[n][k] = (1-c)*((n==k%N)) + c*(n==((k+1)%N))
+        return A
+            
 
 #Function solving the linear advection equation using the selected method
     
-def CNCS(y):
+def solve(y,i):
     
-    D = C(1,y.N,y.c)
+    D = C(i,y.N,y.c)
     
     #u is our solution
     
@@ -77,13 +83,16 @@ def CNCS(y):
     return u
 
 
-#Graph the solution at specified time
+#Plot the graph of the solution at specified time
+    
 def plot(y,tt):
     m = int((y.M-1)*tt/y.T)
-    u = CNCS(y)
+    CTCS = solve(y,1)
+    #FTBS = solve(y,2)
     exact = exactsolution(y)
     plt.axis([0,y.X,-1.3,1.4])
-    plt.plot(y.x,u[m], label = 'CNCS')
+    plt.plot(y.x,CTCS[m], label = 'CNCS')
+    #plt.plot(y.x,FTBS[m],label = 'FTBS')
     plt.plot(y.x,exact[m], label = 'Exact Solution')
     plt.legend()
     plt.title('t = %.3f' % y.t[m])
@@ -91,9 +100,18 @@ def plot(y,tt):
     plt.ylabel('u')
     plt.show()
 
-y = data(1,1,0.7,0.001,0.001)
-plot(y,0.999)
+y = data(X=1,T=1,a=0.7,dx=0.001,dt=0.001)
+plot(y,1)
 
+def error(y,i):
+    u = solve(y,i)
+    er = np.abs(exactsolution(y) - u)
+    Tot = sum(sum(u))
+    ertot = sum(sum(er))/Tot
+    return ertot
 
+print("Error for CNCS: %f" % error(y,1))
+#print("Error for FTBS: %f" % error(y,2))
+    
     
    
