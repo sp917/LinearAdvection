@@ -65,10 +65,7 @@ def C(i,N,c): #C will be the matrix such that u^{n+1} = Cu^{n}
     
 def solve(y,i):
     
-    D = C(i,y.N,y.c)
-    
-    #u is our solution
-    
+    D = C(i,y.N,y.c)    
     u = np.zeros(shape = (y.M,y.N))
     
     #Set initial condition
@@ -79,39 +76,43 @@ def solve(y,i):
 
     for m in range(1,y.M):
         u[m] = np.dot(D,u[m-1])
-    
+        
     return u
 
+#Define a function to calculate the l1 normed error
+def error(y,u,ex):
+    er = np.abs(ex - u)
+    Tot = sum(sum(u))
+    ertot = sum(sum(er))/Tot
+    return ertot
 
-#Plot the graph of the solution at specified time
-    
+#Plot the graph of the solution at specified time and print the total error
+
 def plot(y,tt):
     m = int((y.M-1)*tt/y.T)
     CTCS = solve(y,1)
-    #FTBS = solve(y,2)
+    FTBS = solve(y,2)
     exact = exactsolution(y)
     plt.axis([0,y.X,-1.3,1.4])
     plt.plot(y.x,CTCS[m], label = 'CNCS')
-    #plt.plot(y.x,FTBS[m],label = 'FTBS')
+    plt.plot(y.x,FTBS[m],label = 'FTBS')
     plt.plot(y.x,exact[m], label = 'Exact Solution')
     plt.legend()
     plt.title('t = %.3f' % y.t[m])
     plt.xlabel('x')
     plt.ylabel('u')
     plt.show()
-
+    errCTCS = error(y,CTCS,exact)
+    errFTBS = error(y,FTBS,exact)
+    print("Error for CNCS: %f" % errCTCS)
+    print("Error for FTBS: %f" % errFTBS)
+    
 y = data(X=1,T=1,a=0.7,dx=0.001,dt=0.001)
 plot(y,1)
 
-def error(y,i):
-    u = solve(y,i)
-    er = np.abs(exactsolution(y) - u)
-    Tot = sum(sum(u))
-    ertot = sum(sum(er))/Tot
-    return ertot
 
-print("Error for CNCS: %f" % error(y,1))
-#print("Error for FTBS: %f" % error(y,2))
+
+
     
     
    
