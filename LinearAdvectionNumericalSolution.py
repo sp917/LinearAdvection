@@ -15,6 +15,12 @@ def v(dx,N):
         w[n] = n*dx
     return w
 
+def gauss(x):
+    return np.exp(-(x-0.1)**2/0.001)
+
+def step(x):
+    return 1 - (x<0.1) - (x>0.2)
+
 class data: #This class provides the necessary data for solving the equation
     def __init__(self,X,T,a,dx,dt):
         self.X = X
@@ -29,7 +35,7 @@ class data: #This class provides the necessary data for solving the equation
         self.t = v(dt,self.M) #vector of all possible values of t
     def f(self,x): #Initial condition
         x = x%(self.X)
-        return 1 - (x<0.1) - (x>0.2) #np.exp(-(x-0.1)**2/0.001)# 
+        return gauss(x)
     def exactsolution(self):
         exact = np.zeros(shape=(self.M,self.N))
         for n in range(0,self.N):
@@ -84,7 +90,7 @@ def solve(y,i):
         
     return u
 
-#Define a function to calculate the l1 normed error
+#Function to calculate the l1 normed error
     
 def error(y,u):
     ex = y.exactsolution()
@@ -100,70 +106,92 @@ def plotsol(y,i,u,tt):
     plt.axis([0,y.X,-1.3,1.4])
     plt.plot(y.x,u[m],label = i)
     plt.legend()
-    plt.title('t = %.3f' % y.t[m])
-    plt.xlabel('x')
-    plt.ylabel('u')
+    plt.rc('text', usetex = True)
+    plt.title(r'$t = %.3f$' % y.t[m])
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$u$')
     
+#Output a table of error values
+
+def table(DX,Errors):
+    if (DX.size != Errors.size):
+        print("Mismatched array size")
+    else:
+        print('%20s %20s %20s' % ('dx', 'Error', 'Gradient'))
+        logErrors = np.log(Errors)
+        logDX = np.log(DX)
+        d2,d1,d0 = np.polyfit(logDX, logErrors, 2) # quadratic of best fit
+        grad = 2*d2*logDX + d1
+        for j in range(0,DX.size):
+            s = '\hline\n%20.3f & %20f & %20f' % (DX[j], Errors[j], grad[j])
+            print(s)#prints in LaTeX format
+
 #Solve for various values of dx and calculate the errors
     
 def ploterr(y,i):
     
-    DX = [0.001,0.0025,0.005,0.0075,0.01,0.025,0.05,0.075,0.1]
+    DX = []
+    for k in range(1,100):
+        DX += [k*0.001]
+    DX += [0.1]
     Errors = []
     
     for j in range(0,len(DX)):
         y.changedx(DX[j])
+        y.changedt(DX[j]) # this keeps the courant number the same
         u = solve(y,i)
         er = error(y,u)
-        Errors += [er]
- 
+        Errors += [er]    
+
     #We want to plot log(error) graphs
     
-    Errors = np.array(Errors)
-    Errors = np.log(Errors)
     DX = np.array(DX)
-    DX = np.log(DX)
-
+    Errors = np.array(Errors)
+    logErrors = np.log(Errors)
+    logDX = np.log(DX)
+    d2,d1,d0 = np.polyfit(logDX, logErrors, 2) #quadratic of best fit
+    plt.rc('text', usetex = True)
     plt.xlabel(r'$\log(\Delta x)$')
     plt.ylabel(r'$\log(Error)$')
-    plt.plot(DX,Errors,'o',label = i)
+    plt.plot(logDX,logErrors,'o',label = i)
+    plt.plot(logDX, d2*(logDX**2) + d1*(logDX) + d0,label = i)
     plt.legend()
     
-    
+    table(DX,Errors)
 
 def main():
     
     y = data(X=1,T=1,a=0.7,dx=0.001,dt=0.001)
     
-    print("Solving with CNCS")
+    methods = ['CNCS', 'FTBS']
     
-    CNCS = solve(y,'CNCS')
-    
-    print("Solved with CNCS")
-    
-    print("Solving with FTBS")
-    
-    FTBS = solve(y,'FTBS')
-    
-    print("Solved with FTBS")
-    
-    print("Calculating exact solution")
+    print("\nCalculating exact solution")
     
     Exact = y.exactsolution()
     
-    print("Plotting solutions")
+    for i in methods:
+        print("\nRunning %s with dx = %.3f, dt = %.3f, a = %.2f" 
+              % (i,y.dx,y.dt,y.c))
+        
+        u = solve(y,i)
     
-    plotsol(y, 'CNCS', CNCS, 1)
-    plotsol(y,'FTBS', FTBS, 1)
+        print("\nSolved with %s" % i)
+        plotsol(y, i, u, 1)
+        
     plotsol(y, 'Exact', Exact,1)
+    print("\nPlotting solutions")
     plt.show()
     
-    print("Plotting errors")
+    print("\nCalculating errors")
+    for i in methods:
+        print("\nTable of errors for %s:" % i)
+        ploterr(y,i)
     
-    ploterr(y,'FTBS')
-    ploterr(y,'CNCS')
     
+    print("\nPlotting errors for both methods:")
     plt.show()
+    
+    print("\a")
     
 main()
 
