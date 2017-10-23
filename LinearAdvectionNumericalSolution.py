@@ -25,18 +25,18 @@ def C(i,N,c): #C will be the matrix such that u^{n+1} = Cu^{n}
     
     if i=='CNCS': 
         A = np.zeros(shape=(N,N))
-        B = np.zeros(shape = (N,N)) 
+        B = np.zeros(shape = (N,N))
         for n in range(0,N):
-            for k in range(0,N):        
-                A[n][k] = (n==k) + (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
-                B[n][k] = (n==k) - (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
+            for k in range(n-1,n+2):        
+                A[n][k%N] = (n==k) + (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
+                B[n][k%N] = (n==k) - (c/4)*((n == (k-1)%N) - (n == (k+1)%N))
         return np.dot(np.linalg.inv(A),B)
     
     if i=='FTBS': 
         A = np.zeros(shape = (N,N))
         for n in range(0,N):
-                for k in range(0,N):
-                    A[n][k] = (1-c)*((n==k%N)) + c*(n==((k+1)%N))
+                for k in range(n-1,n+1):
+                    A[n][k%N] = (1-c)*((n==k%N)) + c*(n==((k+1)%N))
         return A
 
 class data: #This class provides the necessary data for solving the equation
@@ -53,7 +53,7 @@ class data: #This class provides the necessary data for solving the equation
         self.t = v(dt,self.M) #vector of all possible values of t
     def f(self,x): #Initial condition
         x = x%(self.X)
-        return gauss(x)
+        return step(x)
     def exactsolution(self):
         exact = np.zeros(shape=(self.M,self.N))
         for n in range(0,self.N):
@@ -196,7 +196,7 @@ def main():
 
     ERRORPLOTTING(y, methods, DX, logDX)
     
-    print("\nPlotting errors for both methods:")
+    print("\nPlotting errors for all methods:")
     
     plt.show()
     
